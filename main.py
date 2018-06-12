@@ -1,7 +1,9 @@
+import json
 from tkinter import *
 import tkinter
 import time
 from PIL import Image, ImageTk
+import urllib
 
 canvas = None
 jackpot1 = None
@@ -10,9 +12,31 @@ jackpot3 = None
 
 def tick():
     canvas.after(200, tick)
-    canvas.itemconfigure(jackpot1, text=time.strftime('%H:%M:%S'))
-    canvas.itemconfigure(jackpot2, text=time.strftime('%H:%M:%S'))
+    jacks = get_jack()
+    canvas.itemconfigure(jackpot1, text="{}".format(jacks[0]['value']))
+    canvas.itemconfigure(jackpot2, text="{}".format(jacks[1]['value']))
     canvas.itemconfigure(jackpot3, text=time.strftime('%H:%M:%S'))
+
+
+JACKPOT_ENDPOINT = 'http://la.ssx.com.ua:8069/slot_machine_counters/jackpot/'
+
+def get_jack():
+    url = JACKPOT_ENDPOINT + 'r101?db=test10'
+    # headers = {"Content-type": "application/x-www-form-urlencoded"}
+    headers = {}
+
+    try:
+        req = urllib.request.Request(url, None, headers)
+        content = urllib.request.urlopen(req, timeout=200).read()
+    except urllib.error.HTTPError:
+        raise
+    content = json.loads(content.decode())
+    # err = content.get('error')
+    # if err:
+    #     e = urllib.error.HTTPError(req.get_full_url(), 999, err, headers, None)
+    #     raise e
+    return content
+
 
 pilImage = Image.open("/home/golubev/Pictures/park/20070218_016.jpg")
 # def showPIL(pilImage):
